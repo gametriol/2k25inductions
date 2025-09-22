@@ -31,8 +31,6 @@ const applicationSchema = new mongoose.Schema({
   whyJoin: { type: String, required: true },
   softSkills: { type: [String], default: [] },
   hardSkills: { type: [String], default: [] },
-  strengths: { type: [String], default: [] },
-  weaknesses: { type: [String], default: [] },
   projectLink: { type: String, trim: true, default: '' },
   imageUrl: { type: String, required: true, trim: true },
   githubProfile: { type: String, trim: true, default: '' },

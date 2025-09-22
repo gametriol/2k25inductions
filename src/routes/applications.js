@@ -79,8 +79,7 @@ const applicationSchema = Joi.object({
   whyJoin: Joi.string().min(1).max(2000).required(),
   softSkills: Joi.alternatives().try(Joi.array().items(Joi.string()), Joi.string()).optional(),
   hardSkills: Joi.alternatives().try(Joi.array().items(Joi.string()), Joi.string()).optional(),
-  strengths: Joi.alternatives().try(Joi.array().items(Joi.string()), Joi.string()).optional(),
-  weaknesses: Joi.alternatives().try(Joi.array().items(Joi.string()), Joi.string()).optional(),
+  // strengths and weaknesses removed
   projectLink: Joi.string().uri().optional(),
   imageUrl: Joi.string().uri().required(),
   githubProfile: Joi.string().uri().allow('').optional(),
@@ -100,8 +99,6 @@ router.post('/', async (req, res) => {
   // normalize skills to arrays
   const softSkills = Array.isArray(value.softSkills) ? value.softSkills : (value.softSkills ? value.softSkills.split(',').map(s => s.trim()) : []);
   const hardSkills = Array.isArray(value.hardSkills) ? value.hardSkills : (value.hardSkills ? value.hardSkills.split(',').map(s => s.trim()) : []);
-  const strengths = Array.isArray(value.strengths) ? value.strengths : (value.strengths ? value.strengths.split(',').map(s => s.trim()) : []);
-  const weaknesses = Array.isArray(value.weaknesses) ? value.weaknesses : (value.weaknesses ? value.weaknesses.split(',').map(s => s.trim()) : []);
 
   try {
     const app = new Application({
@@ -115,8 +112,6 @@ router.post('/', async (req, res) => {
       whyJoin: value.whyJoin,
       softSkills,
       hardSkills,
-      strengths,
-      weaknesses,
       projectLink: value.projectLink || '',
       imageUrl: value.imageUrl,
       githubProfile: value.githubProfile || '',
@@ -136,14 +131,9 @@ router.post('/', async (req, res) => {
 });
 
 // List applications (simple)
-router.get('/', async (req, res) => {
-  try {
-    const list = await Application.find().sort({ createdAt: -1 }).limit(100);
-    res.json(list);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to fetch applications' });
-  }
+router.get('/', (req, res) => {
+  res.status(403).json({ error: 'Access to applications list is forbidden' });
 });
+
 
 module.exports = router;
