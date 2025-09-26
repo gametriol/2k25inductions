@@ -82,7 +82,7 @@ const applicationSchema = Joi.object({
   // strengths and weaknesses removed
   projectLink: Joi.string().uri().optional(),
   imageUrl: Joi.string().uri().required(),
-  githubProfile: Joi.string().uri().allow('').optional(),
+  githubProfile: Joi.string().min(1).max(2000).optional(),
   residence: Joi.string().min(1).max(200).optional(),
 });
 
