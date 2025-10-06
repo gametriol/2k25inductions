@@ -62,6 +62,38 @@ app.post('/api/applications', async (req, res) => {
     const saved = await doc.save();
     return res.status(201).json({ ok: true, id: saved._id });
   } catch (err) {
+    // Handle Mongo duplicate key errors (unique index violation)
+    if (err && (err.code === 11000 || err.code === 11001)) {
+      const keyValue = err.keyValue || {};
+      const errors = {};
+      Object.keys(keyValue).forEach((field) => {
+        const normalized = field.split('.')[0];
+        errors[normalized] = `${normalized} already exists`;
+      });
+
+      // fallback parse
+      if (Object.keys(errors).length === 0 && err.message) {
+        const m = err.message.match(/index:\s*([^\s]+)\s*dup key/i);
+        if (m) {
+          const name = m[1].split('_')[0];
+          errors[name] = `${name} already exists`;
+        } else {
+          errors.general = 'Duplicate value';
+        }
+      }
+
+      return res.status(409).json({ ok: false, errors });
+    }
+
+    // Mongoose validation errors
+    if (err && err.name === 'ValidationError') {
+      const errors = {};
+      Object.keys(err.errors || {}).forEach((k) => {
+        errors[k] = err.errors[k].message || 'Invalid value';
+      });
+      return res.status(400).json({ ok: false, errors });
+    }
+
     console.error('Failed to save induction application:', err);
     return res.status(500).json({ ok: false, error: 'Internal server error' });
   }
